@@ -15,10 +15,10 @@ To build the project you should run the following commands, don't forget to chan
 ```bash
 mkdir build
 cd build
-cmake .. -DONNXRUNTIME_DIR=path_to_onnxruntime -DCMAKE_BUILD_TYPE=Release
+cmake .. -DONNXRUNTIME_DIR=path_to_onnxruntime -DCMAKE_BUILD_TYPE=RelWithDebInfo
 cmake --build .
 ```
-
+CMAKE_BUILD_TYPE must be the same as when onnxruntime was built.
 ## Run
 Before running the executable you should convert your PyTorch model to ONNX if you haven't done it yet. Check the [official tutorial](https://github.com/ultralytics/yolov5/issues/251).
 
@@ -26,7 +26,7 @@ Before running the executable you should convert your PyTorch model to ONNX if y
 
 Run from CLI:
 ```bash
-./yolo_ort --model_path yolov5.onnx --image bus.jpg --class_names coco.names --gpu
+./yolo_ort --model_path ../models/yolov5s.onnx --class_names ../models/coco.names --image ../images/bus.jpg --gpu
 # On Windows ./yolo_ort.exe with arguments as above
 ```
 

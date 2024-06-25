@@ -17,16 +17,16 @@ add_executable(yolo_ort
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-target_include_directories(yolo_ort PRIVATE "${ONNXRUNTIME_DIR}/include/onnxruntime")
+target_include_directories(yolo_ort PRIVATE "${ONNXRUNTIME_DIR}/include/onnxruntime/core/session")
 # link_directories("${ONNXRUNTIME_DIR}/lib")
 target_compile_features(yolo_ort PRIVATE cxx_std_14)
 
 if (WIN32)
-    target_link_libraries(yolo_ort "${ONNXRUNTIME_DIR}/lib/onnxruntime.lib")
+    target_link_libraries(yolo_ort "${ONNXRUNTIME_DIR}/build/Linux/${CMAKE_BUILD_TYPE}/onnxruntime.lib")
 endif(WIN32)
 
 if (UNIX)
-    target_link_libraries(yolo_ort "${ONNXRUNTIME_DIR}/lib/libonnxruntime.so"
+    target_link_libraries(yolo_ort "${ONNXRUNTIME_DIR}/build/Linux/${CMAKE_BUILD_TYPE}/libonnxruntime.so"
         ${OpenCV_LIBS}
         # yolo_ort Qt5::Core
         # yolo_ort Qt5::Widgets
