@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(yolo_ort)
 
 option(ONNXRUNTIME_DIR "Path to built ONNX Runtime directory." STRING)
+option(ENABLE_PERF  "inference perf" OFF)
 message(STATUS "ONNXRUNTIME_DIR: ${ONNXRUNTIME_DIR}")
 
 find_package(OpenCV REQUIRED)
@@ -18,8 +19,11 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 target_include_directories(yolo_ort PRIVATE "${ONNXRUNTIME_DIR}/include/onnxruntime/core/session")
-# link_directories("${ONNXRUNTIME_DIR}/lib")
 target_compile_features(yolo_ort PRIVATE cxx_std_14)
+
+if (ENABLE_PERF)
+    target_compile_definitions(yolo_ort PUBLIC ENABLE_PERF)
+endif(ENABLE_PERF)
 
 if (WIN32)
     target_link_libraries(yolo_ort "${ONNXRUNTIME_DIR}/build/Linux/${CMAKE_BUILD_TYPE}/onnxruntime.lib")

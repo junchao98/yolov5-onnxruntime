@@ -15,7 +15,7 @@ To build the project you should run the following commands, don't forget to chan
 ```bash
 mkdir build
 cd build
-cmake .. -DONNXRUNTIME_DIR=path_to_onnxruntime -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake .. -DONNXRUNTIME_DIR=[path_to_onnxruntime_src] -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_PERF=ON
 cmake --build .
 ```
 CMAKE_BUILD_TYPE must be the same as when onnxruntime was built.

@@ -59,7 +59,16 @@ int main(int argc, char *argv[]) {
 
     if (!imagePath.empty()) {
         image = cv::imread(imagePath);
+#ifdef ENABLE_PERF
+        auto start = std::chrono::high_resolution_clock::now();
         result = detector.detect(image, confThreshold, iouThreshold);
+        auto end = std::chrono::high_resolution_clock::now();
+
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        std::cout << "Execution time: " << duration.count() << " ms" << std::endl;
+#else 
+        result = detector.detect(image, confThreshold, iouThreshold);
+#endif
         utils::visualizeDetection(image, result, classNames);
         cv::imshow("result", image);
         // cv::imwrite("result.jpg", image);
@@ -79,12 +88,17 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
+#ifdef ENABLE_PERF
             auto start_time = std::chrono::high_resolution_clock::now();
             result = detector.detect(frame, confThreshold, iouThreshold);
             utils::visualizeDetection(frame, result, classNames);
             auto end_time = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
             std::cout << "Execution time: " << duration.count() << " ms." << std::endl;
+#else 
+            result = detector.detect(frame, confThreshold, iouThreshold);
+            utils::visualizeDetection(frame, result, classNames);
+#endif
 
             cv::imshow("result", frame);
             cv::waitKey(10);
