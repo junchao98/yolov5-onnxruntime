@@ -9,6 +9,7 @@ YOLODetector::YOLODetector(const std::string& modelPath,
 
     std::vector<std::string> availableProviders = Ort::GetAvailableProviders();
     auto cudaAvailable = std::find(availableProviders.begin(), availableProviders.end(), "CUDAExecutionProvider");
+    auto rocmAvailable = std::find(availableProviders.begin(), availableProviders.end(), "ROCMExecutionProvider");
     OrtCUDAProviderOptions cudaOption;
 
     if (isGPU && (cudaAvailable == availableProviders.end()))
@@ -16,16 +17,20 @@ YOLODetector::YOLODetector(const std::string& modelPath,
         std::cout << "GPU is not supported by your ONNXRuntime build. Fallback to CPU." << std::endl;
         std::cout << "Inference device: CPU" << std::endl;
     }
-    else if (isGPU && (cudaAvailable != availableProviders.end()))
+    else if (cudaAvailable != availableProviders.end())
     {
-        std::cout << "Inference device: GPU" << std::endl;
+        std::cout << "Inference device: CUDA GPU" << std::endl;
         sessionOptions.AppendExecutionProvider_CUDA(cudaOption);
+    }
+    else if (rocmAvailable != availableProviders.end())
+    {
+        std::cout << "Inference device: ROCM GPU" << std::endl;
+        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_ROCM(sessionOptions, 0));
     }
     else
     {
         std::cout << "Inference device: CPU" << std::endl;
     }
-
 #ifdef _WIN32
     std::wstring w_modelPath = utils::charToWstring(modelPath.c_str());
     session = Ort::Session(env, w_modelPath.c_str(), sessionOptions);
