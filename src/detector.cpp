@@ -11,6 +11,7 @@ YOLODetector::YOLODetector(const std::string& modelPath,
     auto cudaAvailable = std::find(availableProviders.begin(), availableProviders.end(), "CUDAExecutionProvider");
     auto rocmAvailable = std::find(availableProviders.begin(), availableProviders.end(), "ROCMExecutionProvider");
     OrtCUDAProviderOptions cudaOption;
+    OrtROCMProviderOptions rocmOption;
 
     if (isGPU && (cudaAvailable == availableProviders.end()))
     {
@@ -25,7 +26,7 @@ YOLODetector::YOLODetector(const std::string& modelPath,
     else if (rocmAvailable != availableProviders.end())
     {
         std::cout << "Inference device: ROCM GPU" << std::endl;
-        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_ROCM(sessionOptions, 0));
+        sessionOptions.AppendExecutionProvider_ROCM(rocmOption);
     }
     else
     {
