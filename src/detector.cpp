@@ -6,28 +6,34 @@ YOLODetector::YOLODetector(const std::string& modelPath,
 {
     env = Ort::Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, "ONNX_DETECTION");
     sessionOptions = Ort::SessionOptions();
+#ifdef ENABLE_PERF
+    sessionOptions.EnableProfiling("profile_file.json");
+#endif
 
     std::vector<std::string> availableProviders = Ort::GetAvailableProviders();
     auto cudaAvailable = std::find(availableProviders.begin(), availableProviders.end(), "CUDAExecutionProvider");
     auto rocmAvailable = std::find(availableProviders.begin(), availableProviders.end(), "ROCMExecutionProvider");
+    auto oclAvailable = std::find(availableProviders.begin(), availableProviders.end(), "OpenCLExecutionProvider");
     OrtCUDAProviderOptions cudaOption;
     OrtROCMProviderOptions rocmOption;
 
-    if (isGPU && (cudaAvailable == availableProviders.end()))
-    {
-        std::cout << "GPU is not supported by your ONNXRuntime build. Fallback to CPU." << std::endl;
-        std::cout << "Inference device: CPU" << std::endl;
-    }
-    else if (cudaAvailable != availableProviders.end())
+    if (isGPU && (cudaAvailable != availableProviders.end()))
     {
         std::cout << "Inference device: CUDA GPU" << std::endl;
         sessionOptions.AppendExecutionProvider_CUDA(cudaOption);
     }
-    else if (rocmAvailable != availableProviders.end())
+    else if (isGPU && (rocmAvailable != availableProviders.end()))
     {
         std::cout << "Inference device: ROCM GPU" << std::endl;
         sessionOptions.AppendExecutionProvider_ROCM(rocmOption);
     }
+#ifdef ENABLE_OCL
+    else if (isGPU &&(oclAvailable != availableProviders.end()))
+    {
+        std::cout << "Inference device: OPENCL GPU" << std::endl;
+        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_OpenCL(sessionOptions, 0, 0));
+    }
+#endif
     else
     {
         std::cout << "Inference device: CPU" << std::endl;

@@ -3,6 +3,7 @@ project(yolo_ort)
 
 option(ONNXRUNTIME_DIR "Path to built ONNX Runtime directory." STRING)
 option(ENABLE_PERF  "inference perf" OFF)
+option(ENABLE_OCL  "enable opencl ep" OFF)
 message(STATUS "ONNXRUNTIME_DIR: ${ONNXRUNTIME_DIR}")
 
 find_package(OpenCV REQUIRED)
@@ -24,6 +25,10 @@ target_compile_features(yolo_ort PRIVATE cxx_std_14)
 if (ENABLE_PERF)
     target_compile_definitions(yolo_ort PUBLIC ENABLE_PERF)
 endif(ENABLE_PERF)
+
+if (ENABLE_OCL)
+    target_compile_definitions(yolo_ort PUBLIC ENABLE_OCL)
+endif(ENABLE_OCL)
 
 if (WIN32)
     target_link_libraries(yolo_ort "${ONNXRUNTIME_DIR}/build/Linux/${CMAKE_BUILD_TYPE}/onnxruntime.lib")
