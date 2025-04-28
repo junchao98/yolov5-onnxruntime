@@ -20,11 +20,16 @@ cmake --build .
 ```
 CMAKE_BUILD_TYPE **must be the same as** when onnxruntime was built.
 
-cmake options:
-- ENABLE_PERF
+#### cmake options:  
+- ENABLE_PERF  
 Enabling this will output per-image inference elapsed time, as well as generate profile_filexxx.json performance statistics, which you can visualize in [Perfetto UI](https://www.ui.perfetto.dev/) 
-- ENABLE_OCL
-Enable opencl ep probing
+- ENABLE_OCL  
+Enable opencl ep probing  
+
+example:
+```
+cmake .. -DONNXRUNTIME_DIR=[path_to_onnxruntime_src] -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_PERF=ON -DENABLE_OCL=ON
+```
 ## Run
 Before running the executable you should convert your PyTorch model to ONNX if you haven't done it yet. Check the [official tutorial](https://github.com/ultralytics/yolov5/issues/251).
 
