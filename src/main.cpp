@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     cmdline::parser cmd;
     cmd.add<std::string>("model_path", 'm', "Path to onnx model.", true, "yolov5.onnx");
     cmd.add<std::string>("image", 'i', "Image source to be detected.", false);
-    cmd.add<std::string>("v4l2", 'v', "video dev node to be detected.", false);
+    cmd.add<std::string>("video", 'v', "video dev node or file to be detected.", false);
     cmd.add<std::string>("class_names", 'c', "Path to class names file.", true, "coco.names");
     cmd.add("gpu", '\0', "Inference on cuda device.");
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     const std::string classNamesPath = cmd.get<std::string>("class_names");
     const std::vector<std::string> classNames = utils::loadNames(classNamesPath);
     const std::string imagePath = cmd.get<std::string>("image");
-    const std::string videoPath = cmd.get<std::string>("v4l2");
+    const std::string videoPath = cmd.get<std::string>("video");
     const std::string modelPath = cmd.get<std::string>("model_path");
 
     if (classNames.empty()) {
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
         // cv::imwrite("result.jpg", image);
         cv::waitKey(0);
     } else if (!videoPath.empty()) {
-        cv::VideoCapture cap(0);
+        cv::VideoCapture cap(videoPath);
         if (!cap.isOpened()) {
             std::cerr << "Error: Could not open camera." << std::endl;
             return -1;
