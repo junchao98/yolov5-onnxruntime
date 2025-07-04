@@ -118,6 +118,65 @@ void YOLODetector::preprocessing(cv::Mat &image, float*& blob, std::vector<int64
     cv::split(floatImage, chw);
 }
 
+static float calculateIoU(const cv::Rect& rect1, const cv::Rect& rect2) {
+    // 计算交集坐标
+    int x1 = std::max(rect1.x, rect2.x);
+    int y1 = std::max(rect1.y, rect2.y);
+    int x2 = std::min(rect1.x + rect1.width, rect2.x + rect2.width);
+    int y2 = std::min(rect1.y + rect1.height, rect2.y + rect2.height);
+
+    // 计算交集面积
+    int interArea = std::max(0, x2 - x1) * std::max(0, y2 - y1);
+
+    // 计算并集面积
+    float unionArea = rect1.area() + rect2.area() - interArea;
+
+    // 避免除以零
+    return (unionArea > 0) ? (interArea / unionArea) : 0.0f;
+}
+
+// 自定义NMS实现
+void NMSBoxes(
+    const std::vector<cv::Rect>& bboxes,
+    const std::vector<float>& scores,
+    float score_threshold,
+    float nms_threshold,
+    std::vector<int>& indices
+) {
+    indices.clear();
+
+    // 第一步：按置信度过滤边界框
+    std::vector<int> idxs;
+    for (int i = 0; i < scores.size(); ++i) {
+        if (scores[i] >= score_threshold) {
+            idxs.push_back(i);
+        }
+    }
+
+    // 第二步：按置信度降序排序
+    std::sort(idxs.begin(), idxs.end(), [&](int a, int b) {
+        return scores[a] > scores[b];
+    });
+
+    // 第三步：NMS处理
+    std::vector<bool> suppressed(idxs.size(), false);
+    for (int i = 0; i < idxs.size(); ++i) {
+        if (suppressed[i]) continue;
+
+        indices.push_back(idxs[i]);  // 保留当前框
+
+        for (int j = i + 1; j < idxs.size(); ++j) {
+            if (suppressed[j]) continue;
+
+            // 计算IoU并抑制重叠框
+            float iou = calculateIoU(bboxes[idxs[i]], bboxes[idxs[j]]);
+            if (iou >= nms_threshold) {
+                suppressed[j] = true;
+            }
+        }
+    }
+}
+
 std::vector<Detection> YOLODetector::postprocessing(const cv::Size& resizedImageShape,
                                                     const cv::Size& originalImageShape,
                                                     std::vector<Ort::Value>& outputTensors,
@@ -166,7 +225,8 @@ std::vector<Detection> YOLODetector::postprocessing(const cv::Size& resizedImage
     }
 
     std::vector<int> indices;
-    cv::dnn::NMSBoxes(boxes, confs, confThreshold, iouThreshold, indices);
+    NMSBoxes(boxes, confs, confThreshold, iouThreshold, indices);
+    // cv::dnn::NMSBoxes(boxes, confs, confThreshold, iouThreshold, indices);
     // std::cout << "amount of NMS indices: " << indices.size() << std::endl;
 
     std::vector<Detection> detections;
