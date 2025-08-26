@@ -10,15 +10,14 @@ C++ YOLO v5 ONNX Runtime inference code for object detection.
 
 
 ## Build
-To build the project you should run the following commands, don't forget to change `ONNXRUNTIME_DIR` cmake option:
+To build the project you should run the following commands, don't forget to change `ORT_INSTALL_DIR` cmake option:
 
 ```bash
 mkdir build
 cd build
-cmake .. -DONNXRUNTIME_DIR=[path_to_onnxruntime_src] -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake .. -DORT_INSTALL_DIR=[path_to_onnxruntime_install_dir] -DCMAKE_BUILD_TYPE=RelWithDebInfo
 cmake --build .
 ```
-CMAKE_BUILD_TYPE **must be the same as** when onnxruntime was built.
 
 #### cmake options:  
 - ENABLE_PERF  
@@ -28,7 +27,7 @@ Enable opencl ep probing
 
 example:
 ```
-cmake .. -DONNXRUNTIME_DIR=[path_to_onnxruntime_src] -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_PERF=ON -DENABLE_OCL=ON
+cmake .. -DORT_INSTALL_DIR=[path_to_onnxruntime_src] -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_PERF=ON -DENABLE_OCL=ON
 ```
 ## Run
 Before running the executable you should convert your PyTorch model to ONNX if you haven't done it yet. Check the [official tutorial](https://github.com/ultralytics/yolov5/issues/251).
